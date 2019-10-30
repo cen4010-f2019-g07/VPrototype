@@ -30,7 +30,7 @@ app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
 	connectDB();
-	res.render('index')
+	res.render('index');
 	endDBConnect();
 });
 
