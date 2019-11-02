@@ -138,5 +138,5 @@ pool.on('enqueue', function(){
 });
 
 pool.on('connection', function(connection){
-	connection.query('SET SESSION auto_increment_incrment=1');
+	connection.query('SET SESSION auto_increment_increment=1');
 });
