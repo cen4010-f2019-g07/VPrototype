@@ -20,8 +20,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-	let queries = [ 'SELECT * FROM issues', 'SELECT * FROM users', 
-	'SELECT * FROM events', 'SELECT * FROM garages'];
+	let queries = [ 'SELECT * FROM issues', 'SELECT * FROM events', 
+	'SELECT * FROM users', 'SELECT * FROM garages'];
 	pool.getConnection(function(error, connection){
 		if(error) throw error;
 		pool.query(queries.join(';'), function(err, rows, fields){
