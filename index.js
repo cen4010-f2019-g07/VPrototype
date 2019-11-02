@@ -3,18 +3,15 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 
 const app = express();
-var queryString;
+var queryString, alerts;
 
-var connection = mysql.createConnection({
+var pool = mysql.createPool({
+	connectionLimit: 100,
 	host: 'localhost',
 	user: 'user',
 	password: 'password',
-	database: 'vprototype'
-});
-
-connection.connect((err) => {
-	if(err) throw err;
-	console.log('Connected!');
+	database: 'vprototype',
+	multipleStatements: true
 });
 
 app.use(express.static('public'));
@@ -23,97 +20,135 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-	var issues = [];
-	var events = [];
-	var users = [];
-	var garages = [];
-	connection.query('SELECT * FROM issues', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			issues[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM events', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			events[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM users', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			users[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM garages', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			garages[i] = rows[i].post_title;
-		}
-	});
-	res.render('pages/index', {
-		issues: issues,
-		events: events,
-		users: users,
-		garages: garages
+	let queries = [ 'SELECT * FROM issues', 'SELECT * FROM users', 
+	'SELECT * FROM events', 'SELECT * FROM garages'];
+	pool.getConnection(function(error, connection){
+		if(error) throw error;
+		pool.query(queries.join(';'), function(err, rows, fields){
+			connection.release();
+			if(err) throw err;
+			res.render('pages/index', {
+				issues: rows[0],
+				events: rows[1],
+				users: rows[2],
+				garages: rows[3]
+			});
+		});
 	});
 });
 
 app.post('/', (req, res) => {
-	queryString = req.body.mysql_query;
-	console.log(queryString);
-	connection.query(queryString, function(err, rows, fields) {
-		if (err) {
+	queryString = req.body.mysql_query.replace(/\s+/g, '').split(":");
+	console.log(queryString[0]);
+	let issues;
+	let events;
+	let users;
+	let garages;
+	switch(queryString[0]){
+		case 'all':
+			console.log('all switch code block');
+			switch(queryString[1]){
+				case 'all':
+					console.log('all: all switch code block');
+					pool.getConnection(function(error, connection){
+						if(error) throw error;
+						pool.query('SELECT * FROM issues', function(err, rows, fields){
+							connection.release();
+							if(err) throw err;
+							console.log(rows);
+							res.render('pages/index', {
+								alerts: alerts,
+								issues: issues,
+								events: events,
+								users: users,
+								garages: garages
+							});
+						});
+					});
+					break;
+				case 'issues':
+					console.log('all: issues switch code block');
+					break;
+				case 'events':
+					console.log('all: events switch code block');
+					break;
+				case 'users':
+					console.log('all: users switch code block');
+					break;
+				case 'garages':
+					console.log('all: garages switch code block');
+					break;
+				default:
+					console.log('Bad Input!');
+					alerts = 'Bad Input!';
+					res.render('pages/index', {
+						alerts: alerts,
+						issues: issues,
+						events: events,
+						users: users,
+						garages: garages
+					});
+			}
+			break;
+		case 'issues':
+			console.log('issues switch code block');
+			//Searching by description
+			break;
+		case 'events':
+			console.log('events switch code block');
+			switch(queryString[1]){
+				case 'all':
+					console.log('all: all switch code block');
+					break;
+				case 'issues':
+					console.log('all: issues switch code block');
+					break;
+				case 'events':
+					console.log('all: events switch code block');
+					break;
+				case 'users':
+					console.log('all: users switch code block');
+					break;
+				case 'garages':
+					console.log('all: garages switch code block');
+					break;
+			}
+			break;
+		case 'users':
+			console.log('users switch code block');
+			//search by email value
+			break;
+		case 'garages':
+			console.log('garages switch code block');
+			//search by name
+			break;
+		default:
 			console.log('Bad Input!');
-		}
-		for (var i in rows){
-			console.log('Post Titles: ', rows[i].post_title);
-		}
-	});
-	var issues = [];
-	var events = [];
-	var users = [];
-	var garages = [];
-	connection.query('SELECT * FROM issues', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			issues[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM events', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			events[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM users', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			users[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM garages', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			garages[i] = rows[i].post_title;
-		}
-	});
-	res.render('pages/index', {
-		issues: issues,
-		events: events,
-		users: users,
-		garages: garages
-	});
-})
+			alerts = 'Bad Query!';
+			res.render('pages/index', {
+				alerts: alerts,
+				issues: issues,
+				events: events,
+				users: users,
+				garages: garages
+			});
+	}
+});
 
 app.listen(3000, () => console.log('Listening on port 3000...'));
 
-connection.on('close', function(err){
-	if (err) {
-		//Oops! Unexpected closing of connection, lets reconnect back.
-		connection = mysql.createConnection(connection.config);
-	}
-	else{
-		console.log('Connection closed normally.');
-	}
+pool.on('acquire', function(connection){
+	console.log('Connection %d acquired', connection.threadId);
+})
+
+pool.on('release', function(connection){
+	console.log('Connection %d released', connection.threadId);
+});
+
+pool.on('enqueue', function(){
+	console.log('Waiting for available connection slot');
+});
+
+pool.on('connection', function(connection){
+	connection.query('SET SESSION auto_increment_incrment=1');
 });
