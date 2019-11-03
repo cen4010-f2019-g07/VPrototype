@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const port = 3000;
 
 const app = express();
 var queryString;
@@ -8,6 +9,7 @@ var queryString;
 var connection = mysql.createConnection({
 	host: 'localhost',
 	user: 'user',
+	port: 3000,
 	password: 'password',
 	database: 'vprototype'
 });
@@ -106,7 +108,7 @@ app.post('/', (req, res) => {
 	});
 })
 
-app.listen(3000, () => console.log('Listening on port 3000...'));
+app.listen(port, () => console.log(`Listening on port ${port}...`));
 
 connection.on('close', function(err){
 	if (err) {
