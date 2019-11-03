@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const http = require('http');
 const port = 3000;
 
 const app = express();
@@ -139,7 +140,9 @@ app.post('/', (req, res) => {
 	});
 });
 
-app.listen(port, () => console.log(`Listening on port ${port}...`));
+http.listen(80);
+
+//app.listen(port, () => console.log(`Listening on port ${port}...`));
 
 pool.on('acquire', function(connection){
 	console.log('Connection %d acquired', connection.threadId);
