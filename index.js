@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const port = 3000;
 
 const app = express();
 var alerts;
@@ -9,6 +10,7 @@ var pool = mysql.createPool({
 	connectionLimit: 100,
 	host: 'localhost',
 	user: 'user',
+	port: 3000,
 	password: 'password',
 	database: 'vprototype',
 	multipleStatements: true
@@ -123,7 +125,7 @@ app.post('/', (req, res) => {
 	});
 });
 
-app.listen(3000, () => console.log('Listening on port 3000...'));
+app.listen(port, () => console.log(`Listening on port ${port}...`));
 
 pool.on('acquire', function(connection){
 	console.log('Connection %d acquired', connection.threadId);

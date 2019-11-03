@@ -1,10 +1,11 @@
 {
-  "name": "VPrototype",
+  "name": "vprototype",
   "version": "1.0.0",
-  "description": "",
+  "description": "team 7 repo",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +16,18 @@
     "ejs": "^2.7.1",
     "express": "^4.17.1",
     "faker": "^4.1.0",
+    "jquery": "^3.4.1",
     "mysql": "^2.17.1",
-    "nodemon": "^1.19.4"
-  }
+    "nodemon": "^1.19.4",
+    "popper.js": "^1.14.7"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cen4010-f2019-g07/MainProject.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cen4010-f2019-g07/MainProject/issues"
+  },
+  "homepage": "https://github.com/cen4010-f2019-g07/MainProject#readme"
 }
