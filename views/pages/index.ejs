@@ -14,16 +14,171 @@
 			<div class="container text-center">
 					<fieldset>
 						<form action='/' method="post">
-							<input name="mysql_query" type="text" class="ghost-input" placeholder="Enter a MySQL Query" required>
+							<input name="mysql_query" type="text" class="ghost-input" placeholder="Enter a Query" required>
 							<input type="submit" class="ghost-button" value="Query">
 						</form>
 					</fieldset>
 				</div>
+				<div class='container'>
+					<h2>Search Syntax</h2>
+					<p>all: all - Show All Records for All Tables</p>
+					<p>all: issues - Show All Records for Issues</p>
+					<p>all: events - Show All Records for Issues</p>
+					<p>all: users - Show All Records for Issues</p>
+					<p>all: garages - Show All Records for Issues</p>
+					<p>issues: description (ex: issues: toilet) - 
+					Search Issue Records by Description</p>
+					<p>events: location (ex: events: Palmetto) - 
+					Search Event Records by Location</p>
+					<p>users: issues (ex: users: fakeemail@fake.edu) - 
+					Search User Records by Email</p>
+					<p>garages: name (ex: garages: Nursing) - 
+					Search Garage Records by Name</p>
+				</div>
 				<div class="container">
-					<p><%= issues %></p>
-					<p><%= events %></p>
-					<p><%= users %></p>
-					<p><%= garages %></p>
+					<h2>Results</h2>
+					<% if(issues.length > 0) { %>
+						<table>
+							<h3>Issues</h3>
+							<thead>
+								<th>ID</th>
+								<th>Description</th>
+								<th>Location</th>
+								<th>Verfied?</th>
+								<th>Resolved?</th>
+							</thead>
+							<tbody>
+								<% for(var i in issues) { %>
+									<tr>
+										<td><%= issues[i].issue_number %></td>
+										<td><%= issues[i].description %></td>
+										<td><%= issues[i].location %></td>
+										<td>
+											<% if(issues[i].verified) { %>
+												Yes
+											<% } else { %>
+												No
+											<% } %>
+										</td>
+										<td>
+											<% if(issues[i].resolved) { %>
+												Yes
+											<% } else { %>
+												No
+											<% } %>
+										</td>
+									</tr>
+								<% } %>
+							</tbody>
+						</table>
+					<% } %>
+					<% if(events.length > 0) { %>
+						<table>
+							<h3>Events</h3>
+							<thead>
+								<th>ID</th>
+								<th>Location</th>
+								<th>Start Date</th>
+								<th>End Date</th>
+								<th>Description</th>
+							</thead>
+							<tbody>
+								<% for(var i in events) { %>
+									<tr>
+										<td><%= events[i].event_number %></td>
+										<td><%= events[i].location %></td>
+										<td><%= events[i].start_date %></td>
+										<td><%= events[i].end_date %></td>
+										<td><%= events[i].description %></td>
+									</tr>
+								<% } %>
+							</tbody>
+						</table>
+					<% } %>
+					<% if(users.length > 0) { %>
+						<table>
+							<h3>Users</h3>
+							<thead>
+								<th>ID</th>
+								<th>First Name</th>
+								<th>Last Name</th>
+								<th>Email</th>
+								<th>Phone Number</th>
+								<th>Residency</th>
+								<th>Address</th>
+								<th>Building</th>
+								<th>Room Number</th>
+								<th>Commuter?</th>
+								<th>Dormer?</th>
+								<th>Faculty?</th>
+							</thead>
+							<tbody>
+								<% for(var i in users) { %>
+									<tr>
+										<td><%= users[i].user_number %></td>
+										<td><%= users[i].firstname %></td>
+										<td><%= users[i].lastname %></td>
+										<td><%= users[i].email %></td>
+										<td><%= users[i].phone_number %></td>
+										<td><%= users[i].residency %></td>
+										<td><%= users[i].address %></td>
+										<td><%= users[i].building %></td>
+										<td><%= users[i].room_number %></td>
+										<td>
+											<% if(users[i].commuter) { %>
+												Yes
+											<% } else { %>
+												No
+											<% } %>
+										</td>
+										<td>
+											<% if(users[i].dormer) { %>
+												Yes
+											<% } else { %>
+												No
+											<% } %>
+										</td>
+										<td>
+											<% if(users[i].faculty) { %>
+												Yes
+											<% } else { %>
+												No
+											<% } %>
+										</td>
+									</tr>
+								<% } %>
+							</tbody>
+						</table>
+					<% } %>
+					<% if(garages.length > 0) { %>
+						<table>
+							<h3>Garages</h3>
+							<thead>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Full?</th>
+								<th>Free Spots</th>
+								<th>Total Spots</th>
+							</thead>
+							<tbody>
+								<% for(var i in garages) { %>
+									<tr>
+										<td><%= garages[i].garage_number %></td>
+										<td><%= garages[i].name %></td>
+										<td>
+											<% if(garages[i].full) { %>
+												Yes
+											<% } else { %>
+												No
+											<% } %>
+										</td>
+										<td><%= garages[i].free_spots %></td>
+										<td><%= garages[i].total_spots %></td>
+									</tr>
+								<% } %>
+							</tbody>
+						</table>
+					<% } %>
 				</div>
 				<footer>
 					<% include ../partials/footer %>
