@@ -10,7 +10,6 @@ var pool = mysql.createPool({
 	connectionLimit: 100,
 	host: 'localhost',
 	user: 'user',
-	port: 3000,
 	password: 'password',
 	database: 'vprototype',
 	multipleStatements: true
