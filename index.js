@@ -3,18 +3,15 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 
 const app = express();
-var queryString;
+var alerts;
 
-var connection = mysql.createConnection({
+var pool = mysql.createPool({
+	connectionLimit: 100,
 	host: 'localhost',
 	user: 'user',
 	password: 'password',
-	database: 'vprototype'
-});
-
-connection.connect((err) => {
-	if(err) throw err;
-	console.log('Connected!');
+	database: 'vprototype',
+	multipleStatements: true
 });
 
 app.use(express.static('public'));
@@ -23,97 +20,123 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-	var issues = [];
-	var events = [];
-	var users = [];
-	var garages = [];
-	connection.query('SELECT * FROM issues', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			issues[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM events', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			events[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM users', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			users[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM garages', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			garages[i] = rows[i].post_title;
-		}
-	});
-	res.render('pages/index', {
-		issues: issues,
-		events: events,
-		users: users,
-		garages: garages
+	let queries = [ 'SELECT * FROM issues', 'SELECT * FROM events', 
+	'SELECT * FROM users', 'SELECT * FROM garages'];
+	pool.getConnection(function(error, connection){
+		if(error) throw error;
+		pool.query(queries.join(';'), function(err, rows, fields){
+			connection.release();
+			if(err) throw err;
+			res.render('pages/index', {
+				issues: rows[0],
+				events: rows[1],
+				users: rows[2],
+				garages: rows[3]
+			});
+		});
 	});
 });
 
 app.post('/', (req, res) => {
-	queryString = req.body.mysql_query;
-	console.log(queryString);
-	connection.query(queryString, function(err, rows, fields) {
-		if (err) {
+	let submitQuery = req.body.mysql_query.replace(/\s+/g, '').split(":");
+	console.log(submitQuery[0]);
+	let queryString;
+	switch(submitQuery[0]){
+		case 'all':
+			console.log('all switch code block');
+			switch(submitQuery[1]){
+				case 'all':
+					console.log('all: all switch code block');
+					queryString = ['SELECT * FROM issues', 'SELECT * FROM events',
+					'SELECT * FROM users', 'SELECT * FROM garages'];
+					break;
+				case 'issues':
+					console.log('all: issues switch code block');
+					queryString = ['SELECT * FROM issues', '', '', ''];
+					break;
+				case 'events':
+					console.log('all: events switch code block');
+					queryString = ['SELECT * FROM issues WHERE issue_number = -1',
+					 'SELECT * FROM events', '', ''];
+					break;
+				case 'users':
+					console.log('all: users switch code block');
+					queryString = ['SELECT * FROM issues WHERE issue_number = -1',
+					 'SELECT * FROM events WHERE event_number = -1', 'SELECT * FROM users', ''];
+					break;
+				case 'garages':
+					console.log('all: garages switch code block');
+					queryString = ['SELECT * FROM issues WHERE issue_number = -1', 
+					'SELECT * FROM events WHERE event_number = -1', 
+					'SELECT * FROM users WHERE user_number = -1', 'SELECT * FROM garages'];
+					break;
+				default:
+					console.log('Bad Input!');
+					alerts = 'Bad Input!';
+			}
+			break;
+		case 'issues':
+			console.log('issues switch code block');
+			//Searching by description
+			let issues = 'SELECT * FROM issues WHERE description LIKE \'%'.concat(submitQuery[1], '%\'');
+			queryString = [issues, '', '', ''];
+			break;
+		case 'events':
+			console.log('events switch code block');
+			//Search by location
+			let events = 'SELECT * FROM events WHERE location LIKE \'%'.concat(submitQuery[1], '%\'');
+			queryString = ['SELECT * FROM issues WHERE issue_number = -1', events, '', ''];
+			break;
+		case 'users':
+			console.log('users switch code block');
+			//search by email value
+			let users = 'SELECT * FROM users WHERE email LIKE \'%'.concat(submitQuery[1], '%\'');
+			queryString = ['SELECT * FROM issues WHERE issue_number = -1', 
+			'SELECT * FROM events WHERE event_number = -1', users, ''];
+			break;
+		case 'garages':
+			console.log('garages switch code block');
+			//search by name
+			let garages = 'SELECT * FROM garages WHERE name LIKE \'%'.concat(submitQuery[1], '%\'');
+			queryString = ['SELECT * FROM issues WHERE issue_number = -1', 
+			'SELECT * FROM events WHERE event_number = -1', 
+			'SELECT * FROM users WHERE user_number = -1', garages];
+			break;
+		default:
 			console.log('Bad Input!');
-		}
-		for (var i in rows){
-			console.log('Post Titles: ', rows[i].post_title);
-		}
+			alerts = 'Bad Query!';
+	}
+	console.log(queryString);
+	pool.getConnection(function(error, connection){
+		if(error) throw error;
+		pool.query(queryString.join(';'), function(err, rows, fields){
+			connection.release();
+			if(err) throw err;
+			res.render('pages/index', {
+				alerts: alerts,
+				issues: rows[0],
+				events: rows[1],
+				users: rows[2],
+				garages: rows[3]
+			});
+		});
 	});
-	var issues = [];
-	var events = [];
-	var users = [];
-	var garages = [];
-	connection.query('SELECT * FROM issues', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			issues[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM events', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			events[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM users', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			users[i] = rows[i].post_title;
-		}
-	});
-	connection.query('SELECT * FROM garages', function(err, rows, fields) {
-		if(err) throw err;
-		for (var i in rows){
-			garages[i] = rows[i].post_title;
-		}
-	});
-	res.render('pages/index', {
-		issues: issues,
-		events: events,
-		users: users,
-		garages: garages
-	});
-})
+});
 
 app.listen(3000, () => console.log('Listening on port 3000...'));
 
-connection.on('close', function(err){
-	if (err) {
-		//Oops! Unexpected closing of connection, lets reconnect back.
-		connection = mysql.createConnection(connection.config);
-	}
-	else{
-		console.log('Connection closed normally.');
-	}
+pool.on('acquire', function(connection){
+	console.log('Connection %d acquired', connection.threadId);
+})
+
+pool.on('release', function(connection){
+	console.log('Connection %d released', connection.threadId);
+});
+
+pool.on('enqueue', function(){
+	console.log('Waiting for available connection slot');
+});
+
+pool.on('connection', function(connection){
+	connection.query('SET SESSION auto_increment_increment=1');
 });
