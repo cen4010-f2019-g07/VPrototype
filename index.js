@@ -42,6 +42,7 @@ app.post('/', (req, res) => {
 	let submitQuery = req.body.mysql_query.replace(/\s+/g, '').split(":");
 	console.log(submitQuery[0]);
 	let queryString;
+	let all = true;
 	switch(submitQuery[0]){
 		case 'all':
 			console.log('all switch code block');
@@ -53,17 +54,20 @@ app.post('/', (req, res) => {
 					break;
 				case 'issues':
 					console.log('all: issues switch code block');
-					queryString = ['SELECT * FROM issues', '', '', ''];
+					queryString = ['SELECT * FROM issues', 'SELECT * FROM events WHERE event_number = -1',
+					 'SELECT * FROM users WHERE user_number = -1', 'SELECT * FROM garages WHERE garage_number = -1'];
 					break;
 				case 'events':
 					console.log('all: events switch code block');
 					queryString = ['SELECT * FROM issues WHERE issue_number = -1',
-					 'SELECT * FROM events', '', ''];
+					 'SELECT * FROM events', 'SELECT * FROM users WHERE user_number = -1',
+					  'SELECT * FROM garages WHERE garage_number = -1'];
 					break;
 				case 'users':
 					console.log('all: users switch code block');
 					queryString = ['SELECT * FROM issues WHERE issue_number = -1',
-					 'SELECT * FROM events WHERE event_number = -1', 'SELECT * FROM users', ''];
+					 'SELECT * FROM events WHERE event_number = -1', 'SELECT * FROM users', 
+					 'SELECT * FROM garages WHERE garage_number = -1'];
 					break;
 				case 'garages':
 					console.log('all: garages switch code block');
@@ -74,26 +78,33 @@ app.post('/', (req, res) => {
 				default:
 					console.log('Bad Input!');
 					alerts = 'Bad Input!';
+					queryString = ['SELECT * FROM issues WHERE issue_number = -1', 
+					'SELECT * FROM events WHERE event_number = -1', 
+					'SELECT * FROM users WHERE user_number = -1', 
+					'SELECT * FROM garages WHERE garage_number = -1'];
 			}
 			break;
 		case 'issues':
 			console.log('issues switch code block');
 			//Searching by description
 			let issues = 'SELECT * FROM issues WHERE description LIKE \'%'.concat(submitQuery[1], '%\'');
-			queryString = [issues, '', '', ''];
+			queryString = [issues, 'SELECT * FROM events WHERE event_number = -1', 
+			'SELECT * FROM users WHERE user_number = -1', 'SELECT * FROM garages WHERE garage_number = -1'];
 			break;
 		case 'events':
 			console.log('events switch code block');
 			//Search by location
 			let events = 'SELECT * FROM events WHERE location LIKE \'%'.concat(submitQuery[1], '%\'');
-			queryString = ['SELECT * FROM issues WHERE issue_number = -1', events, '', ''];
+			queryString = ['SELECT * FROM issues WHERE issue_number = -1', events, 
+			'SELECT * FROM users WHERE user_number = -1', 'SELECT * FROM garages WHERE garage_number = -1'];
 			break;
 		case 'users':
 			console.log('users switch code block');
 			//search by email value
 			let users = 'SELECT * FROM users WHERE email LIKE \'%'.concat(submitQuery[1], '%\'');
 			queryString = ['SELECT * FROM issues WHERE issue_number = -1', 
-			'SELECT * FROM events WHERE event_number = -1', users, ''];
+			'SELECT * FROM events WHERE event_number = -1', users, 
+			'SELECT * FROM garages WHERE garage_number = -1'];
 			break;
 		case 'garages':
 			console.log('garages switch code block');
@@ -106,6 +117,10 @@ app.post('/', (req, res) => {
 		default:
 			console.log('Bad Input!');
 			alerts = 'Bad Query!';
+			queryString = ['SELECT * FROM issues WHERE issue_number = -1', 
+			'SELECT * FROM events WHERE event_number = -1', 
+			'SELECT * FROM users WHERE user_number = -1', 
+			'SELECT * FROM garages WHERE garage_number = -1'];
 	}
 	console.log(queryString);
 	pool.getConnection(function(error, connection){
