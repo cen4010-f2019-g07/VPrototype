@@ -1,8 +1,9 @@
+"use strict";
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const http = require('http');
-const port = 3000;
+const port = 14050;
 
 const app = express();
 var alerts;
@@ -10,9 +11,9 @@ var alerts;
 var pool = mysql.createPool({
 	connectionLimit: 100,
 	host: 'localhost',
-	user: 'user',
-	password: 'password',
-	database: 'vprototype',
+	user: 'cen4010fal19_g07',
+	password: 'kJDrofNeU6',
+	database: 'cen4010fal19_g07',
 	multipleStatements: true
 });
 
@@ -21,8 +22,15 @@ app.use(express.static('node_modules'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
+http.createServer(app, function(req, res){
+	res.writeHead(200, {'Content-Type': 'text/plain'});
+	res.end("Hello Node.js\n");
+}).listen(14125);
+
+console.log("Server running on port 14125");
+
 app.get('/', (req, res) => {
-	let queries = [ 'SELECT * FROM issues', 'SELECT * FROM events', 
+	var queries = [ 'SELECT * FROM issues', 'SELECT * FROM events', 
 	'SELECT * FROM users', 'SELECT * FROM garages'];
 	pool.getConnection(function(error, connection){
 		if(error) throw error;
@@ -40,10 +48,10 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-	let submitQuery = req.body.mysql_query.replace(/\s+/g, '').split(":");
+	var submitQuery = req.body.mysql_query.replace(/\s+/g, '').split(":");
 	console.log(submitQuery[0]);
-	let queryString;
-	let all = true;
+	var queryString;
+	var all = true;
 	switch(submitQuery[0]){
 		case 'all':
 			console.log('all switch code block');
@@ -88,21 +96,21 @@ app.post('/', (req, res) => {
 		case 'issues':
 			console.log('issues switch code block');
 			//Searching by description
-			let issues = 'SELECT * FROM issues WHERE description LIKE \'%'.concat(submitQuery[1], '%\'');
+			var issues = 'SELECT * FROM issues WHERE description LIKE \'%'.concat(submitQuery[1], '%\'');
 			queryString = [issues, 'SELECT * FROM events WHERE event_number = -1', 
 			'SELECT * FROM users WHERE user_number = -1', 'SELECT * FROM garages WHERE garage_number = -1'];
 			break;
 		case 'events':
 			console.log('events switch code block');
 			//Search by location
-			let events = 'SELECT * FROM events WHERE location LIKE \'%'.concat(submitQuery[1], '%\'');
+			var events = 'SELECT * FROM events WHERE location LIKE \'%'.concat(submitQuery[1], '%\'');
 			queryString = ['SELECT * FROM issues WHERE issue_number = -1', events, 
 			'SELECT * FROM users WHERE user_number = -1', 'SELECT * FROM garages WHERE garage_number = -1'];
 			break;
 		case 'users':
 			console.log('users switch code block');
 			//search by email value
-			let users = 'SELECT * FROM users WHERE email LIKE \'%'.concat(submitQuery[1], '%\'');
+			var users = 'SELECT * FROM users WHERE email LIKE \'%'.concat(submitQuery[1], '%\'');
 			queryString = ['SELECT * FROM issues WHERE issue_number = -1', 
 			'SELECT * FROM events WHERE event_number = -1', users, 
 			'SELECT * FROM garages WHERE garage_number = -1'];
@@ -110,7 +118,7 @@ app.post('/', (req, res) => {
 		case 'garages':
 			console.log('garages switch code block');
 			//search by name
-			let garages = 'SELECT * FROM garages WHERE name LIKE \'%'.concat(submitQuery[1], '%\'');
+			var garages = 'SELECT * FROM garages WHERE name LIKE \'%'.concat(submitQuery[1], '%\'');
 			queryString = ['SELECT * FROM issues WHERE issue_number = -1', 
 			'SELECT * FROM events WHERE event_number = -1', 
 			'SELECT * FROM users WHERE user_number = -1', garages];
@@ -139,8 +147,6 @@ app.post('/', (req, res) => {
 		});
 	});
 });
-
-http.listen(80);
 
 //app.listen(port, () => console.log(`Listening on port ${port}...`));
 
