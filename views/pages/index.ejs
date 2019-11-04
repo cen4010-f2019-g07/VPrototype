@@ -156,6 +156,7 @@
 							<thead>
 								<th>ID</th>
 								<th>Name</th>
+								<th>Location</th>
 								<th>Full?</th>
 								<th>Free Spots</th>
 								<th>Total Spots</th>
@@ -165,6 +166,7 @@
 									<tr>
 										<td><%= garages[i].garage_number %></td>
 										<td><%= garages[i].name %></td>
+										<td><%= garages[i].location %></td>
 										<td>
 											<% if(garages[i].full) { %>
 												Yes
